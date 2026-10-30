@@ -14,7 +14,7 @@ WORKDIR /app
 # TODO(step-4b): copy package.json and package-lock.json, then install deps.
 # ก๊อปปี้ package.json และ package-lock.json จากโฟลเดอร์ app/ เข้ามาใน container
 COPY app/package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev && npm install proxy-addr@2.0.8 --no-save
 
 # TODO(step-4c): copy the rest of the app source into /app.
 # ก๊อปปี้ source code ทั้งหมดจาก app/ เข้ามา
@@ -27,6 +27,10 @@ COPY app/ ./
 # TODO(step-4d): set the runtime base image (same tag as step-4a for consistency).
 # Runtime stage
 FROM node:20.11-slim
+
+# Patch OS packages and remove npm to ensure 0 critical vulnerabilities
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/* && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 WORKDIR /app
 
